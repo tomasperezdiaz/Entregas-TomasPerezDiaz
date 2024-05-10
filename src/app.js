@@ -1,6 +1,8 @@
 import express from "express";
 import { Server, Socket } from "socket.io";
 import { engine } from "express-handlebars";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 
 import productsRouter from "./routers/products.router.js";
 import cartsRouter from "./routers/carts.router.js";
@@ -20,6 +22,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
 
+app.use(
+  session({
+    store: MongoStore.create({
+      mongoUrl:
+        "mongodb+srv://tomasperezdiaz03:789456123@database.dy0snpa.mongodb.net/ecommerce",
+      ttl: 3600,
+    }),
+    secret: "StrikeOne",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", __dirname + "/views");
@@ -36,7 +51,8 @@ const expressServer = app.listen(PORT, () => {
 const io = new Server(expressServer);
 
 io.on("connection", async (socket) => {
-  const { payload } = await getProductsService({});
+  const limit = 100;
+  const { payload } = await getProductsService({limit});
   const product = payload;
   socket.emit("product", payload);
 

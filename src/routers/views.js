@@ -1,31 +1,29 @@
 import { Router } from "express";
-import { getProductsService } from "../services/productsManager.js";
-import { getCartByIdService } from "../services/cartsManager.js";
+import {
+  cartView,
+  chatView,
+  homeView,
+  productsView,
+  realTimeProductsView,
+  loginView,
+  registerView,
+  loginPostView,
+  registerPostView,
+  logOut,
+} from "../controllers/views.js";
+import { auth } from "../middleware/auth.js";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
-  const { payload } = await getProductsService({});
-  return res.render("home", { product: payload, styles: "styles.css" }, );
-});
-
-router.get("/realtimeproducts", (req, res) => {
-  return res.render("realTimeProducts", {styles: "styles.css"});
-});
-
-router.get("/chat", (req, res) => {
-  return res.render("chat", {styles: "styles.css"});
-});
-
-router.get("/products", async (req, res) => {
-  const result = await getProductsService({ ...req.query });
-  return res.render("products", { title: "productos", result, styles: "styles.css" });
-});
-
-router.get("/cart/:cid", async (req, res) => {
-  const { cid } = req.params;
-  const carrito = await getCartByIdService(cid);
-  return res.render("cart", { title: "cart", carrito, styles: "styles.css" });
-});
+router.get("/", homeView);
+router.get("/realtimeproducts", auth, realTimeProductsView);
+router.get("/chat", auth, chatView);
+router.get("/products", auth, productsView);
+router.get("/cart/:cid", auth, cartView);
+router.post("/register", registerPostView);
+router.get("/login", loginView);
+router.get("/register", registerView);
+router.post("/login", loginPostView);
+router.get("/logout", logOut);
 
 export default router;
