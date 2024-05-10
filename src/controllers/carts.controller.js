@@ -50,9 +50,9 @@ export const deleteProductInCart = async (req = request, res = response) => {
   try {
     const { cid, id } = req.params;
     const carrito = await deleteProductInCartService(cid, id);
-    if (carrito)
+    if (!carrito)
       return res.status(404).json({ msg: "No se pudo realizar la operacion" });
-    return res.json({ msg: "Producto eleminado del carrito", carrito });
+    return res.json({ msg: "Producto eliminado del carrito", carrito });
   } catch (error) {
     return res.status(500).json({ msg: "Hablar con admin" });
   }
@@ -69,6 +69,7 @@ export const updateProductInCart = async (req = request, res = response) => {
       });
 
     const carrito = await updateProductInCartService(cid, id, quantity);
+    console.log(carrito);
     if (!carrito)
       return res.status(404).json({ msg: "No se pudo realizar la operacion" });
 

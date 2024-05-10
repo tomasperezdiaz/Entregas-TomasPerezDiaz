@@ -25,6 +25,7 @@ export const addProductInCartService = async (cid, id) => {
     if (!carrito) return null;
 
     const productInCart = carrito.products.find((p) => p.id.toString() === id);
+    
     if (productInCart) productInCart.quantity++;
     else carrito.products.push({ id: id, quantity: 1 });
     carrito.save();
@@ -38,9 +39,9 @@ export const addProductInCartService = async (cid, id) => {
 
 export const deleteProductInCartService = async (cid, id) => {
   try {
-     await cartModel.findByIdAndUpdate(
+     return await cartModel.findByIdAndUpdate(
       cid,
-      { $pull: { products: { id: id } } },
+      { $pull: { "products": { id: id } } },
       { new: true }
     );
   } catch (error) {
@@ -51,11 +52,12 @@ export const deleteProductInCartService = async (cid, id) => {
 
 export const updateProductInCartService = async (cid, id, quantity) => {
   try {
-    await cartModel.findOneAndUpdate(
+    return await cartModel.findOneAndUpdate(
       { _id: cid, "products.id": id },
       { $set: { "products.$.quantity": quantity } },
       { new: true }
     );
+    
   } catch (error) {
     console.log("deleteProductInCartService ->", error);
     throw error;
@@ -64,9 +66,9 @@ export const updateProductInCartService = async (cid, id, quantity) => {
 
 export const deleteCartService = async (cid) => {
     try {
-      await cartModel.findByIdAndUpdate(
+      return await cartModel.findByIdAndUpdate(
         cid,
-        { $set: { products: [] } },
+        { $set: { "products": [] } },
         { new: true }
       );
     } catch (error) {
