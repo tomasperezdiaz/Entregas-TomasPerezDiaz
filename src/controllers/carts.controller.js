@@ -7,6 +7,7 @@ import {
   getCartByIdService,
   updateProductInCartService,
 } from "../services/cartsManager.js";
+import session from "express-session";
 
 export const getCartById = async (req = request, res = response) => {
   try {
