@@ -3,6 +3,7 @@ import { Server, Socket } from "socket.io";
 import { engine } from "express-handlebars";
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import passport from "passport";
 
 import productsRouter from "./routers/products.router.js";
 import cartsRouter from "./routers/carts.router.js";
@@ -14,6 +15,7 @@ import {
   addProductService,
   getProductsService,
 } from "./services/productsManager.js";
+import { initialPassport } from "./config/passport.js";
 
 const app = express();
 const PORT = 8080;
@@ -35,6 +37,10 @@ app.use(
   })
 );
 
+initialPassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", __dirname + "/views");
@@ -52,7 +58,7 @@ const io = new Server(expressServer);
 
 io.on("connection", async (socket) => {
   const limit = 100;
-  const { payload } = await getProductsService({limit});
+  const { payload } = await getProductsService({ limit });
   const product = payload;
   socket.emit("product", payload);
 

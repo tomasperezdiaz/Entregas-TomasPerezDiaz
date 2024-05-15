@@ -1,85 +1,84 @@
 import { request, response } from "express";
 import { getProductsService } from "../services/productsManager.js";
 import { getCartByIdService } from "../services/cartsManager.js";
-import { getUserEmail, registerUser } from "../services/user.js";
 
 export const homeView = async (req = request, res = response) => {
   const limit = 100;
   const { payload } = await getProductsService({ limit });
 
-  
-  const user = req.session.user; 
-  return res.render("home", { product: payload, styles: "styles.css", title: "Inicio",user });
+  const user = req.session.user;
+  return res.render("home", {
+    product: payload,
+    styles: "styles.css",
+    title: "Inicio",
+    user,
+  });
 };
 
 export const realTimeProductsView = async (req = request, res = response) => {
-    const user = req.session.user; 
-  return res.render("realTimeProducts", { styles: "styles.css" ,user});
+  const user = req.session.user;
+  return res.render("realTimeProducts", { styles: "styles.css", user });
 };
 
 export const chatView = (req, res) => {
-    const user = req.session.user;
-  return res.render("chat", { styles: "styles.css",user });
+  const user = req.session.user;
+  return res.render("chat", { styles: "styles.css", user });
 };
 
 export const productsView = async (req, res) => {
-    const user = req.session.user;
+  const user = req.session.user;
   const result = await getProductsService({ ...req.query });
   return res.render("products", {
     title: "productos",
     result,
     styles: "styles.css",
-    user
+    user,
   });
 };
 
 export const cartView = async (req, res) => {
-    const user = req.session.user;
+  const user = req.session.user;
   const { cid } = req.params;
   const carrito = await getCartByIdService(cid);
-  return res.render("cart", { title: "cart", carrito, styles: "styles.css",user });
+  return res.render("cart", {
+    title: "cart",
+    carrito,
+    styles: "styles.css",
+    user,
+  });
 };
 
 export const loginView = async (req, res) => {
+  const isAuthenticated = req.session.user !== undefined;
+
+  if (isAuthenticated) return res.redirect("/");
   return res.render("login", { title: "Login", styles: "styles.css" });
 };
 
 export const registerView = async (req, res) => {
+  const isAuthenticated = req.session.user !== undefined;
+
+  if (isAuthenticated) return res.redirect("/");
   return res.render("register", { title: "Registro", styles: "styles.css" });
 };
 
 export const registerPostView = async (req, res) => {
-  const { password, confirmPassword } = req.body;
+  if (!req.user) return res.redirect("/register");
 
-  if (password !== confirmPassword) {
-    return res.redirect("/register");
-  }
-
-  const user = await registerUser({ ...req.body });
-
-  if (user) {
-    const userName = `${user.name} ${user.lastName}`;
-    req.session.user = userName;
-    req.session.rol = user.rol;
-    return res.redirect("/");
-  }
-
-  return res.redirect("/register");
+  return res.redirect("/login");
 };
 
 export const loginPostView = async (req, res) => {
-  const { password, email } = req.body;
+  if (!req.user) return res.redirect("/login");
 
-  const user = await getUserEmail(email);
-
-  if (user && user.password === password) {
-    const userName = `${user.name} ${user.lastName}`;
-    req.session.user = userName;
-    req.session.rol = user.rol;
-    return res.redirect("/");
-  }
-
-  return res.redirect("/login");
+  req.session.user = {
+    name: req.user.name,
+    lastName: req.user.lastName,
+    email: req.user.email,
+    rol: req.user.rol,
+    image: req.user.image,
+  };
+  return res.redirect("/");
 };
 
 export const logOut = async (req, res) => {
