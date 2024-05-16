@@ -14,9 +14,10 @@
     <nav>
       {{#if user}}
         <p>Bienvenido, {{user.email}}</p>
+        
         {{#if user.image}}
           <div class="profile-picture">
-            <img src="{{iser.image}}" alt="Perfil de usuario" />
+            <img src="{{user.image}}" alt="Perfil de usuario" />
           </div>
         {{/if}}
         <a href="/logout"><button>Cerrar sesion</button></a>
