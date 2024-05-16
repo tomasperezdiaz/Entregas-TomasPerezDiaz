@@ -70,9 +70,9 @@ export const initialPassport = () => {
     "github",
     new GitHubStrategy(
       {
-        //clientID: process.clientID,
-        //clientSecret: process.clientSecret,
-        //callbackURL: process.cla,
+        clientID: "Iv23li7Z4j3K7cLwgcsL",
+        clientSecret: "190f02a2abebd85e2f434980431493dbc21b1945",
+        callbackURL: "http://localhost:8080/login-github-callack",
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
