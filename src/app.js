@@ -7,6 +7,7 @@ import passport from "passport";
 
 import productsRouter from "./routers/products.router.js";
 import cartsRouter from "./routers/carts.router.js";
+import sessionsRouter from "./routers/sessions.router.js"
 import views from "./routers/views.js";
 import __dirname from "./utils.js";
 import { dbConecction } from "./dataBase/config.js";
@@ -48,6 +49,7 @@ app.set("views", __dirname + "/views");
 app.use("/", views);
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
+app.use("/", sessionsRouter)
 
 await dbConecction();
 
