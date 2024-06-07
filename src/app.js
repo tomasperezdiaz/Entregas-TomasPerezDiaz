@@ -1,6 +1,7 @@
 import express from "express";
 import { Server, Socket } from "socket.io";
 import { engine } from "express-handlebars";
+import 'dotenv/config';
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import passport from "passport";
@@ -19,7 +20,7 @@ import {
 import { initialPassport } from "./config/passport.js";
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -29,7 +30,7 @@ app.use(
   session({
     store: MongoStore.create({
       mongoUrl:
-        "mongodb+srv://tomasperezdiaz03:789456123@database.dy0snpa.mongodb.net/ecommerce",
+        process.env.URI_MONGO_DB,
       ttl: 3600,
     }),
     secret: "StrikeOne",
