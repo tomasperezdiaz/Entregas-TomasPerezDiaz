@@ -1,8 +1,8 @@
 import passport from "passport";
 import local from "passport-local";
 import GitHubStrategy from "passport-github2";
-import { getUserById, getUserEmail, registerUser } from "../services/user.js";
 import { createHash, isValidPass } from "../utils/bcryptPassword.js";
+import { UserRepository } from "../repositories/index.js";
 
 const localStrategy = local.Strategy;
 
@@ -19,7 +19,7 @@ export const initialPassport = () => {
             return done(null, false);
           }
 
-          const user = await getUserEmail(userName);
+          const user = await UserRepository.getUserEmail(userName);
 
           if (user) {
             return done(null, false);
@@ -27,7 +27,7 @@ export const initialPassport = () => {
 
           req.body.password = createHash(password);
 
-          const newUser = await registerUser({ ...req.body });
+          const newUser = await UserRepository.registerUser({ ...req.body });
 
           if (newUser) return done(null, newUser);
           return done(null, false);
@@ -43,7 +43,7 @@ export const initialPassport = () => {
       { usernameField: "email" },
       async (userName, password, done) => {
         try {
-          const user = await getUserEmail(userName);
+          const user = await UserRepository.getUserEmail(userName);
 
           if (!user) {
             done(null, false);
@@ -63,7 +63,7 @@ export const initialPassport = () => {
   });
 
   passport.deserializeUser(async (id, done) => {
-    const user = await getUserById(id);
+    const user = await UserRepository.getUserById(id);
     done(null, user);
   });
   passport.use(
@@ -77,7 +77,7 @@ export const initialPassport = () => {
       async (accessToken, refreshToken, profile, done) => {
         try {
           const email = profile._json.email;
-          const user = await getUserEmail(email);
+          const user = await UserRepository.getUserEmail(email);
 
           if (user) return done(null, user);
 
@@ -89,7 +89,7 @@ export const initialPassport = () => {
             github: true,
           };
 
-          const result = await registerUser({ ...newUser });
+          const result = await  UserRepository.registerUser({ ...newUser });
 
           return done(null, result);
         } catch (error) {

@@ -1,15 +1,11 @@
 import { request, response } from "express";
-import {
-  addProductService,
-  deleteProductService,
-  getProductsByIdService,
-  getProductsService,
-  updateProductService,
-} from "../services/productsManager.js";
+import { ProductRepository } from "../repositories/index.js";
+
+
 
 export const getProducts = async (req = request, res = response) => {
   try {
-    const result = await getProductsService({ ...req.query });
+    const result = await ProductRepository.getProducts({ ...req.query });
     return res.json({ result });
   } catch (error) {
     console.log("getProducts ->", error);
@@ -20,7 +16,7 @@ export const getProducts = async (req = request, res = response) => {
 export const getProductsById = async (req = request, res = response) => {
   try {
     const { id } = req.params;
-    const producto = await getProductsByIdService(id);
+    const producto = await ProductRepository.getProductsById(id);
 
     if (!producto)
       return res.status(404).json({ msg: "El producto con ese ID no existe" });
@@ -40,7 +36,7 @@ export const addProduct = async (req = request, res = response) => {
         msg: "Los campos [title,description,code,price,stock,category] son obligatorios ",
       });
 
-    const producto = await addProductService({ ...req.body });
+    const producto = await ProductRepository.addProduct({ ...req.body });
     return res.json({ producto });
 
   } catch (error) {
@@ -52,7 +48,7 @@ export const updateProduct = async (req = request, res = response) => {
   try {
     const { id } = req.params;
     const { _id, ...rest } = req.body;
-    const producto = await updateProductService(id, rest);
+    const producto = await ProductRepository.updateProduct(id, rest);
     if (producto) return res.json({ msg: "Producto actualizado", producto });
     return res.status(404).json({ msg: "El producto no se pudo actualizar" });
   } catch (error) {
@@ -63,7 +59,7 @@ export const updateProduct = async (req = request, res = response) => {
 export const deleteProduct = async (req = request, res = response) => {
   try {
     const { id } = req.params;
-    const producto = await deleteProductService(id);
+    const producto = await ProductRepository.deleteProduct(id);
     if (producto) return res.json({ msg: "Producto eliminado", producto });
     return res.status(404).json({ msg: "El producto no se pudo eliminar" });
   } catch (error) {

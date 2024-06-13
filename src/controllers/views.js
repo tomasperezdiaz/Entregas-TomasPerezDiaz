@@ -1,10 +1,11 @@
 import { request, response } from "express";
-import { getProductsService } from "../services/productsManager.js";
-import { getCartByIdService } from "../services/cartsManager.js";
+import { CartRepository, ProductRepository } from "../repositories/index.js";
+
+
 
 export const homeView = async (req = request, res = response) => {
   const limit = 100;
-  const { payload } = await getProductsService({ limit });
+  const { payload } = await ProductRepository.getProducts({ limit });
 
   const user = req.session.user;
   return res.render("home", {
@@ -27,7 +28,7 @@ export const chatView = (req, res) => {
 
 export const productsView = async (req, res) => {
   const user = req.session.user;
-  const result = await getProductsService({ ...req.query });
+  const result = await ProductRepository.getProducts({ ...req.query });
   return res.render("products", {
     title: "productos",
     result,
@@ -39,7 +40,7 @@ export const productsView = async (req, res) => {
 export const cartView = async (req, res) => {
   const user = req.session.user;
   const { cid } = req.params;
-  const carrito = await getCartByIdService(cid);
+  const carrito = await CartRepository.getCartById(cid);
   return res.render("cart", {
     title: "cart",
     carrito,

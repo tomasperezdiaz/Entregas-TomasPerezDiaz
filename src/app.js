@@ -12,12 +12,10 @@ import sessionsRouter from "./routers/sessions.router.js"
 import views from "./routers/views.js";
 import __dirname from "./utils.js";
 import { dbConecction } from "./dataBase/config.js";
-import { messageModel } from "./dao/models/messages.js";
-import {
-  addProductService,
-  getProductsService,
-} from "./services/productsManager.js";
+import { messageModel } from "./dao/mongo/models/messages.js";
 import { initialPassport } from "./config/passport.js";
+import { ProductRepository } from "./repositories/index.js";
+
 
 const app = express();
 const PORT = process.env.PORT;
@@ -61,12 +59,12 @@ const io = new Server(expressServer);
 
 io.on("connection", async (socket) => {
   const limit = 100;
-  const { payload } = await getProductsService({ limit });
+  const { payload } = await ProductRepository.getProducts({ limit });
   const product = payload;
   socket.emit("product", payload);
 
   socket.on("agregarProducto", async (products) => {
-    const newProduct = await addProductService({ ...products });
+    const newProduct = await ProductRepository.addProduct({ ...products });
     console.log({ products });
     if (newProduct) {
       product.push(newProduct);
