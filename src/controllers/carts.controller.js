@@ -1,16 +1,29 @@
 import { request, response } from "express";
-import { CartRepository } from "../repositories/index.js";
-
-
+import {
+  CartRepository,
+  ProductRepository,
+  UserRepository,
+} from "../repositories/index.js";
 
 export const getCartById = async (req = request, res = response) => {
   try {
+    const { _id } = req;
     const { cid } = req.params;
+
+    const usuario = await UserRepository.getUserById(_id);
+    if (!usuario) {
+      return res.status(400).json({ ok: false, msg: "El usuario no existe" });
+    }
+
+    if (!(usuario.cart_id.toString() === cid)) {
+      return res.status(400).json({ ok: false, msg: "Carrito no valido" });
+    }
+
     const carrito = await CartRepository.getCartById(cid);
 
-    if (carrito) return res.json({ carrito });
+  return res.json({ carrito });
 
-    return res.status(404).json({ msg: "El carrito con ese ID no existe" });
+
   } catch (error) {
     return res.status(500).json({ msg: "Hablar con admin" });
   }
@@ -28,7 +41,22 @@ export const createCart = async (req = request, res = response) => {
 
 export const addProductInCart = async (req = request, res = response) => {
   try {
+    const { _id } = req;
     const { cid, id } = req.params;
+
+    const usuario = await UserRepository.getUserById(_id);
+    if (!usuario) {
+      return res.status(400).json({ ok: false, msg: "El usuario no existe" });
+    }
+
+    if (!(usuario.cart_id.toString() === cid)) {
+      return res.status(400).json({ ok: false, msg: "Carrito no valido" });
+    }
+
+    const existeProducto = await ProductRepository.getProductsById(id);
+    if (!existeProducto) {
+      return res.status(400).json({ ok: false, msg: "Producto no valido" });
+    }
 
     const carrito = await CartRepository.addProductInCart(cid, id);
 
@@ -43,10 +71,23 @@ export const addProductInCart = async (req = request, res = response) => {
 
 export const deleteProductInCart = async (req = request, res = response) => {
   try {
+    const { _id } = req;
+    const usuario = await UserRepository.getUserById(_id);
+    if (!usuario) {
+      return res.status(400).json({ ok: false, msg: "El usuario no existe" });
+    }
+
+    if (!(usuario.cart_id.toString() === cid)) {
+      return res.status(400).json({ ok: false, msg: "Carrito no valido" });
+    }
+
+    const existeProducto = await ProductRepository.getProductsById(id);
+    if (!existeProducto) {
+      return res.status(400).json({ ok: false, msg: "Producto no valido" });
+    }
     const { cid, id } = req.params;
     const carrito = await CartRepository.deleteProductInCart(cid, id);
-    if (!carrito)
-      return res.status(404).json({ msg: "No se pudo realizar la operacion" });
+  
     return res.json({ msg: "Producto eliminado del carrito", carrito });
   } catch (error) {
     return res.status(500).json({ msg: "Hablar con admin" });
@@ -55,9 +96,24 @@ export const deleteProductInCart = async (req = request, res = response) => {
 
 export const updateProductInCart = async (req = request, res = response) => {
   try {
+    const { _id } = req;
+    
     const { cid, id } = req.params;
     const { quantity } = req.body;
 
+    const usuario = await UserRepository.getUserById(_id);
+    if (!usuario) {
+      return res.status(400).json({ ok: false, msg: "El usuario no existe" });
+    }
+
+    if (!(usuario.cart_id.toString() === cid)) {
+      return res.status(400).json({ ok: false, msg: "Carrito no valido" });
+    }
+
+    const existeProducto = await ProductRepository.getProductsById(id);
+    if (!existeProducto) {
+      return res.status(400).json({ ok: false, msg: "Producto no valido" });
+    }
     if (!quantity || !Number.isInteger(quantity))
       return res.status(404).json({
         msg: "La propiedad quantity es obligatoria y debe ser un numero entero",
