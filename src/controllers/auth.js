@@ -1,9 +1,25 @@
 import { response, request } from "express";
 import { UserRepository } from "../repositories/index.js";
+import { createHash, isValidPass } from "../utils/bcryptPassword.js";
+import { generateToken } from "../utils/jsonWebToken.js";
+import { getUserEmail } from "../repositories/usersRepository.js";
 
 export const loginUsuario = async (req = request, res = response) => {
   try {
-    return res.json({ ok: true, msg: "Login usuario" });
+    const { email, password } = req.body;
+    const usuario = await getUserEmail(email);
+    if (!usuario) {
+      return res.status(400).json({ ok: false, msg: "Datos incorrectos" });
+    }
+    const validPassword = isValidPass(password, usuario.password);
+
+    if (!validPassword) {
+      return res.status(400).json({ ok: false, msg: "Datos incorrectos" });
+    }
+    const { _id, name, lastName,  rol } = usuario ;
+    const token = generateToken({ _id, name, lastName, email, rol });
+    
+    return res.json({ ok: true, usuario, token });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ ok: false, msg: "Hable con el admin" });
@@ -11,8 +27,12 @@ export const loginUsuario = async (req = request, res = response) => {
 };
 export const crearUsuario = async (req = request, res = response) => {
   try {
-    const result = await UserRepository.registerUser(req.body);
-    return res.json({ ok: true, result });
+    req.body.password = createHash(password);
+    const usuario = await UserRepository.registerUser(req.body);
+    const { _id, name, lastName, email, rol } = usuario ;
+    const token = generateToken({ _id, name, lastName, email, rol });
+
+    return res.json({ ok: true, usuario , token });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ ok: false, msg: "Hable con el admin" });

@@ -6,13 +6,14 @@ import {
   getProductsById,
   updateProduct,
 } from "../controllers/products.controller.js";
+import { validarJWT } from "../middleware/auth.js";
 
 const router = Router();
 
-router.get("/", getProducts);
-router.get("/:id", getProductsById);
-router.post("/", addProduct);
-router.put("/:id", updateProduct);
-router.delete("/:id", deleteProduct);
+router.get("/",validarJWT, getProducts);
+router.get("/:id",validarJWT, getProductsById);
+router.post("/",validarJWT, addProduct);
+router.put("/:id",validarJWT, updateProduct);
+router.delete("/:id",validarJWT, deleteProduct);
 
 export { router as productsRouter };
