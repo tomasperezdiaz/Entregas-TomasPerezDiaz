@@ -17,4 +17,4 @@ router.delete("/:cid/product/:id", deleteProductInCart);
 router.delete("/:cid", deleteCart);
 router.put("/:cid/product/:id", updateProductInCart);
 
-export default router;
+export { router as cartsRouter };

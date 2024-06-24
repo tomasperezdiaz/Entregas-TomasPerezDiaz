@@ -4,7 +4,7 @@ const nameCollection = "User";
 
 const UserSchema = new Schema({
   name: { type: String, required: [true, "El nombre es obligatorio"] },
-  lastName: { type: String },
+  lastName: { type: String, required: [true, "El apellido es obligatorio"] },
   email: {
     type: String,
     required: [true, "El mail es obligatorio"],
